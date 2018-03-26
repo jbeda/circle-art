@@ -1,18 +1,18 @@
 package main
 
 const (
-	cSpace             = 0.15
-	cMargin            = 0.015
+	cSpace             = 0.12
+	cMargin            = 0.012
 	cMinRadius         = 0.01
 	cMaxRadius         = (cSpace - cMargin) / 2.0
 	canvasMargin       = 0.2
-	canvasWidth        = 15.0
-	canvasInsideWidth  = canvasWidth - canvasMargin*2.0
-	canvasHeight       = 10.0
+	canvasHeight       = 10.5
 	canvasInsideHeight = canvasHeight - canvasMargin*2.0
+	canvasWidth        = canvasHeight * 3.0 / 2.0
+	canvasInsideWidth  = canvasWidth - canvasMargin*2.0
 	boardWidth         = 19.0
 	boardHeight        = 11.0
-	numChunks          = 1
-	unitsPerInch       = 72
+	numChunks          = 2
+	unitsPerInch       = 96
 	strokeWidth        = 0.01
 )

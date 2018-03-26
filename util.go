@@ -27,7 +27,3 @@ func scaleValue(f float64) float64 {
 func scaleCoord(c geom.Coord) geom.Coord {
 	return geom.Coord{scaleValue(c.X), scaleValue(c.Y)}
 }
-
-func style(color string) string {
-	return fmt.Sprintf("fill: none; stroke: %s; stroke-width: %g", color, scaleValue(strokeWidth))
-}
