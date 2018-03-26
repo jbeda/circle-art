@@ -65,7 +65,7 @@ func (sg *SVGGrid) RenderGrid(gc GridContent) {
 		r.AddChild(sg.createStyleElement())
 
 		if chunk == numChunks-1 {
-			outline := svgdata.NewRectXYWH(xOffset, yOffset, scaleValue(canvasWidth), scaleValue(canvasHeight))
+			outline := svgdata.NewRectXYWH(scaleValue(xOffset), scaleValue(yOffset), scaleValue(canvasWidth), scaleValue(canvasHeight))
 			r.AddChild(outline)
 			outline.Attrs()["class"] = "border"
 		}
