@@ -31,11 +31,11 @@ func (sg *SVGGrid) createStyleElement() svgdata.Node {
 	style := svgdata.NewStyle()
 	style.Attrs()["type"] = "text/css"
 
-	colors := initColors(numChunks)
+	colors := initColors(4)
 
 	b := bytes.Buffer{}
 	b.WriteString(fmt.Sprintf(".border{fill:none;stroke:red;stroke-width:%g;}\n", scaleValue(strokeWidth)))
-	for i := 0; i < numChunks; i++ {
+	for i := 0; i < 4; i++ {
 		b.WriteString(fmt.Sprintf(".c%d{fill:none;stroke:%s;stroke-width:%g;}\n", i, colors[i], scaleValue(strokeWidth)))
 	}
 
@@ -43,57 +43,58 @@ func (sg *SVGGrid) createStyleElement() svgdata.Node {
 	return style
 }
 
+func (sg *SVGGrid) CreateRoot() *svgdata.Root {
+	r := svgdata.CreateRoot()
+	r.Attrs()["viewBox"] = fmt.Sprintf("0 0 %g %g", scaleValue(boardWidth), scaleValue(boardHeight))
+	r.Attrs()["version"] = "1.1"
+	//r.Attrs()["width"] = fmt.Sprintf("%gin", boardWidth)
+	//r.Attrs()["height"] = fmt.Sprintf("%gin", boardHeight)
+	r.Attrs()["x"] = "0px"
+	r.Attrs()["y"] = "0px"
+	r.Attrs()["style"] = fmt.Sprintf("enable-background:new %s;", r.Attrs()["viewBox"])
+
+	r.AddChild(sg.createStyleElement())
+
+	return r
+}
+
 func (sg *SVGGrid) RenderGrid(gc GridContent) {
 	gc.SetSize(sg.xNum, sg.yNum)
-
-	xPerChunk := int(sg.xNum / numChunks)
 
 	xOffset := (boardWidth - canvasWidth) / 2.0
 	yOffset := (boardHeight - canvasHeight) / 2.0
 
-	for chunk := 0; chunk < numChunks; chunk++ {
-		// Set up new root for chunk
-		r := svgdata.CreateRoot()
-		r.Attrs()["viewBox"] = fmt.Sprintf("0 0 %g %g", scaleValue(boardWidth), scaleValue(boardHeight))
-		r.Attrs()["version"] = "1.1"
-		//r.Attrs()["width"] = fmt.Sprintf("%gin", boardWidth)
-		//r.Attrs()["height"] = fmt.Sprintf("%gin", boardHeight)
-		r.Attrs()["x"] = "0px"
-		r.Attrs()["y"] = "0px"
-		r.Attrs()["style"] = fmt.Sprintf("enable-background:new %s;", r.Attrs()["viewBox"])
+	r := sg.CreateRoot()
 
-		r.AddChild(sg.createStyleElement())
+	for xSkip := 0; xSkip < 2; xSkip++ {
+		for ySkip := 0; ySkip < 2; ySkip++ {
 
-		if chunk == numChunks-1 {
-			outline := svgdata.NewRectXYWH(scaleValue(xOffset), scaleValue(yOffset), scaleValue(canvasWidth), scaleValue(canvasHeight))
-			r.AddChild(outline)
-			outline.Attrs()["class"] = "border"
-		}
+			if xSkip == 1 && ySkip == 1 {
+				outline := svgdata.NewRectXYWH(scaleValue(xOffset), scaleValue(yOffset), scaleValue(canvasWidth), scaleValue(canvasHeight))
+				r.AddChild(outline)
+				outline.Attrs()["class"] = "border"
+			}
 
-		g := svgdata.NewGroup()
-		r.AddChild(g)
+			g := svgdata.NewGroup()
+			r.AddChild(g)
 
-		chunkStart := chunk * xPerChunk
-		chunkEnd := (chunk + 1) * xPerChunk
-		if chunk == numChunks-1 {
-			chunkEnd = sg.xNum
-		}
-
-		for x := chunkStart; x < chunkEnd; x++ {
-			for y := 0; y < sg.yNum; y++ {
-				c := scaleCoord(geom.Coord{
-					xOffset + canvasMargin + cSpace/2 + float64(x)*sg.xSpace,
-					yOffset + canvasMargin + cSpace/2 + float64(y)*sg.ySpace,
-				})
-				rRaw := gc.GetValue(x, y)
-				rad := scaleValue(scaleToRange(rRaw, 1.0, cMinRadius, cMaxRadius))
-				circle := svgdata.NewCircle(c, rad)
-				circle.Attrs()["class"] = fmt.Sprintf("c%d", chunk)
-				g.AddChild(circle)
+			for x := 0 + xSkip; x < sg.xNum; x += 2 {
+				for y := 0 + ySkip; y < sg.yNum; y += 2 {
+					c := scaleCoord(geom.Coord{
+						xOffset + canvasMargin + cSpace/2 + float64(x)*sg.xSpace,
+						yOffset + canvasMargin + cSpace/2 + float64(y)*sg.ySpace,
+					})
+					rRaw := gc.GetValue(x, y)
+					rad := scaleValue(scaleToRange(rRaw, 1.0, cMinRadius, cMaxRadius))
+					circle := svgdata.NewCircle(c, rad)
+					circle.Attrs()["class"] = fmt.Sprintf("c%d", 2*xSkip+ySkip)
+					g.AddChild(circle)
+				}
 			}
 		}
-
-		d, _ := svgdata.Marshal(r, true)
-		ioutil.WriteFile(fmt.Sprintf("test-%03d.svg", chunk), d, 0644)
 	}
+
+	// Write out the SVG file
+	d, _ := svgdata.Marshal(r, true)
+	ioutil.WriteFile("test.svg", d, 0644)
 }
