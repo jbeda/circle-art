@@ -58,7 +58,7 @@ func (sg *SVGGrid) CreateRoot() *svgdata.Root {
 	return r
 }
 
-func (sg *SVGGrid) RenderGrid(gc GridContent) {
+func (sg *SVGGrid) RenderGrid(gc GridContent, outputPrefix string) {
 	gc.SetSize(sg.xNum, sg.yNum)
 
 	xOffset := (boardWidth - canvasWidth) / 2.0
@@ -96,5 +96,5 @@ func (sg *SVGGrid) RenderGrid(gc GridContent) {
 
 	// Write out the SVG file
 	d, _ := svgdata.Marshal(r, true)
-	ioutil.WriteFile("test.svg", d, 0644)
+	ioutil.WriteFile(fmt.Sprintf("%s.svg", outputPrefix), d, 0644)
 }

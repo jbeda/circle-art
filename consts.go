@@ -12,10 +12,13 @@ const (
 
 	// The margin between edge of art and first circle
 	canvasMargin = 0.2
+
+	canvasAspectRatio = 3.0 / 2.0
+
 	// canvasHeight       = 10.5
 	canvasHeight       = 5
 	canvasInsideHeight = canvasHeight - canvasMargin*2.0
-	canvasWidth        = canvasHeight * 3.0 / 2.0
+	canvasWidth        = canvasHeight * canvasAspectRatio
 	canvasInsideWidth  = canvasWidth - canvasMargin*2.0
 
 	// The total size of the board
